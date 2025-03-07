@@ -1,0 +1,39 @@
+
+<div class="form-configuration">
+  <h2>Form Configuration</h2>
+
+  <div class="grid-wrapper">
+    <!-- Custom Headers -->
+    <div class="custom-headers">
+      <span class="header show-field">Show Field</span>
+      <span class="header field-name-header"></span>
+      <span class="header required-field">Required Field</span>
+    </div>
+
+    <!-- Drag-and-Drop List -->
+    <div class="field-list" cdkDropList (cdkDropListDropped)="drop($event)">
+      <div class="field-row" *ngFor="let field of editableFields" cdkDrag>
+        <!-- Drag Handle -->
+        <!-- <span class="drag-handle" cdkDragHandle>☰</span> -->
+
+        <!-- Show Field Checkbox (Kendo UI) -->
+        <kendo-checkbox [(ngModel)]="field.show" 
+                        (change)="onShowChange(field)" 
+                        [ngModelOptions]="{standalone: true}">
+        </kendo-checkbox>
+
+        <!-- Field Name -->
+        <span class="field-name">{{ field.label }}</span>
+
+        <!-- Required Field Checkbox (Kendo UI) -->
+        <kendo-checkbox [(ngModel)]="field.required" 
+                        [disabled]="!field.show" 
+                        [ngModelOptions]="{standalone: true}">
+        </kendo-checkbox>
+      </div>
+    </div>
+
+    <!-- Save Changes Button -->
+    <button kendoButton (click)="saveChanges()" [routerLink]="'/register'" class="save-button">Save Changes</button>
+  </div>
+</div>

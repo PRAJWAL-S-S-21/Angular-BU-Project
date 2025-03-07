@@ -1,0 +1,126 @@
+.form-configuration {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #ececec;
+  padding: 20px;
+  box-sizing: border-box;
+
+  h2 {
+    font-size: 35px;
+    font-weight: bold;
+    color: #000;
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+
+  .grid-wrapper {
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+
+    .custom-headers {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      background-color: #000;
+      color: #fff;
+      height: 40px;
+      padding: 10px;
+      font-weight: bold;
+
+      .show-field {
+        padding-left: 15px;
+      }
+
+      .required-field {
+        padding-right: 15px;
+      }
+    }
+
+    .field-list {
+      margin-bottom: 15px;
+
+      .field-row {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        // border-bottom: 1px solid #ddd;
+        background-color: white;
+
+        .drag-handle {
+          font-size: 18px;
+          cursor: grab;
+          margin-right: 10px;
+        }
+
+        .show-checkbox,
+        .required-checkbox {
+          width: 16px; // Match the native checkbox size
+          height: 16px;
+          margin-right: 10px;
+          // border: 1px solid #555; // Match the default border color
+          border-radius: 3px;
+          margin-right: 20px;
+        }
+
+        .field-name {
+          flex-grow: 1;
+          font-size: 16px;
+          color: #000;
+          margin-left: 30px;
+        }
+      }
+    }
+  }
+
+  .save-button {
+    width: 120px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 5px;
+
+    &:hover {
+      background-color: #333;
+    }
+  }
+}
+
+/*Override Kendo Checkbox Styles */
+::ng-deep .k-checkbox {
+  border: 1px solid #555 !important; /* Change border color to gray */
+  background-color: white !important; /* White background */
+}
+
+/* When Checkbox is Checked */
+::ng-deep .k-checkbox.k-checked {
+  background-color: #555 !important; /* Change background to gray */
+  border-color: #555 !important; /* Change border when checked */
+}
+
+/* When Checkbox is Focused */
+::ng-deep .k-checkbox:focus {
+  outline: none !important; /* Remove any default focus styles */
+  box-shadow: 0 0 3px #555 !important; /* Optional: Add subtle gray focus */
+}
+
+/*Change Checkbox Checkmark Color */
+::ng-deep .k-checkbox .k-icon {
+  color: white !important; /* Keep checkmark white */
+}
+
+
+
