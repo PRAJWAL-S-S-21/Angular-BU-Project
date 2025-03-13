@@ -1,0 +1,39 @@
+<div class="parent">
+
+    <div *ngIf="showPopup" class="popup-overlay">
+        <div class="popup-box">
+          <h2>{{ popupTitle }}</h2>
+          <p>{{ popupMessage }}</p>
+          <button (click)="closePopup()">OK</button>
+        </div>
+      </div>
+      
+    <h2>Member Registration</h2>
+    <form [formGroup]="registrationForm" (ngSubmit)="submitForm()">
+        <div *ngFor="let field of fields" class="form-group">
+            <label>{{ field.name }}</label>
+
+            <!-- Regular Input for all fields except "address" -->
+            <input *ngIf="field.name !== 'address'" 
+                [formControlName]="field.name.toLowerCase()" 
+                [required]="field.required">
+
+            <!-- Kendo TextArea for "address" field -->
+            <kendo-textarea *ngIf="field.name === 'address'" 
+                [formControlName]="field.name.toLowerCase()" 
+                [rows]="4">
+            </kendo-textarea>
+
+            <!-- Show Validation Messages -->
+            <small class="error" 
+            *ngIf="registrationForm.get(field.name.toLowerCase())?.invalid && 
+                   (registrationForm.get(field.name.toLowerCase())?.touched || 
+                    registrationForm.get(field.name.toLowerCase())?.dirty)">
+            {{ getErrorMessage(field.name.toLowerCase()) }}
+        </small>
+        
+        </div>
+
+        <button type="submit" [disabled]="registrationForm.invalid || registrationForm.pristine">Submit</button>
+    </form>
+</div>

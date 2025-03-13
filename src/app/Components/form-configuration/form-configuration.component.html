@@ -1,0 +1,65 @@
+<!-- <div class="config-container">
+  <h2>Form Configuration</h2>
+  <div class="config-card">
+    <kendo-grid [kendoGridBinding]="fields" [rowReorderable]="true"  [rowDraggable]="true">
+      <kendo-grid-column field="show" title="SHOW FIELD">
+        <ng-template kendoGridCellTemplate let-dataItem>
+          <input type="checkbox" [(ngModel)]="dataItem.show">
+        </ng-template>
+      </kendo-grid-column>
+      <kendo-grid-rowreorder-column></kendo-grid-rowreorder-column>
+      <kendo-grid-column field="name" title=""></kendo-grid-column>
+      <kendo-grid-column field="required" title="REQUIRED FIELD">
+        <ng-template kendoGridCellTemplate let-dataItem>
+          <input type="checkbox" [(ngModel)]="dataItem.required">
+        </ng-template>
+      </kendo-grid-column>
+    </kendo-grid>
+    <button class="save-btn" (click)="saveChanges()">Save Changes</button>
+  </div>
+</div>
+
+
+ -->
+
+
+
+ <div class="config-container">
+  <h2>Form Configuration</h2>
+  
+  <div class="config-card">
+    <div
+      #wrapper
+      kendoDragTargetContainer
+      kendoDropTargetContainer
+      dragTargetFilter=".k-master-row"
+      dropTargetFilter=".k-master-row"
+      [dragData]="dragData"
+      [hint]="{ hintClass: 'rowHint' }"
+      (onDrop)="onDrop($event)"
+      dragHandle="tr"
+    >
+   
+      <kendo-grid [data]="fields" >
+        <kendo-grid-column field="show" title="SHOW FIELD" [headerStyle]="{ 'background-color': 'black','color': 'white'}" [style]="{  'border': 'none' }" >
+          <ng-template kendoGridCellTemplate let-dataItem>
+            <!-- <input type="checkbox" [(ngModel)]="dataItem.show"> -->
+            <kendo-checkbox [(ngModel)] = "dataItem.show"></kendo-checkbox>
+          </ng-template>
+        </kendo-grid-column>
+
+        <!-- <kendo-grid-rowreorder-column></kendo-grid-rowreorder-column> -->
+
+        <kendo-grid-column field="name" title="" [headerStyle]="{ 'background-color': 'black','color': 'white'}" [style]="{  'border': 'none' }"></kendo-grid-column>
+
+        <kendo-grid-column field="required" title="REQUIRED FIELD" [headerStyle]="{ 'background-color': 'black','color': 'white'}" [style]="{  'border': 'none' }">
+          <ng-template kendoGridCellTemplate let-dataItem>
+            <!-- <input type="checkbox" [(ngModel)]="dataItem.required"> -->
+            <kendo-checkbox [(ngModel)] = "dataItem.required"></kendo-checkbox>
+          </ng-template>
+        </kendo-grid-column>
+      </kendo-grid>
+    </div>
+    <button class="save-btn" (click)="saveChanges()">Save Changes</button>
+  </div>
+</div>
