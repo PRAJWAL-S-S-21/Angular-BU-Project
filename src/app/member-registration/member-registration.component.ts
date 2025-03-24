@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormField } from '../models/form-field.model';
 import { FormConfigService } from '../services/form-config.service';
+import { CountryService } from '../services/countries.service';
 
 @Component({
   selector: 'app-member-registration',
@@ -18,8 +19,12 @@ export class MemberRegistrationComponent {
   isMobileNumberLessThanTen: boolean = false;
   showPopup: boolean = false; // Controls popup visibility
   formattedFormData: string = ''; //Stores JSON formatted data
+  selectedCountryCode: string = '';
+  emailSuggestions: string[] = [];
+  showSuggestions = false;
+  countries: any[] = [];
 
-  constructor(private formConfigService: FormConfigService) {}
+  constructor(private formConfigService: FormConfigService, private countryService: CountryService) { }
 
   ngOnInit() {
     this.formConfigService.formFields$.subscribe(fields => {
@@ -27,11 +32,16 @@ export class MemberRegistrationComponent {
       this.sortFields();
       this.initializeFormData();
     });
+
+    this.countryService.getCountries().subscribe(countries => {
+      this.countries = countries;
+    })
   }
 
   sortFields() {
     this.sortedFields = [...this.fields].sort((a, b) => a.order - b.order);
   }
+
 
   initializeFormData() {
     this.sortedFields.forEach(field => {
@@ -39,6 +49,35 @@ export class MemberRegistrationComponent {
         this.formData[field.name] = ''; // Set default value to empty string
       }
     });
+  }
+
+  // Used to select the country code and add it to the mobile number 
+  onCountryChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const selectedCode = target.value; // Get selected country code
+    const selectedCountry = this.countries.find(c => c.code === selectedCode);
+
+
+    if (selectedCountry) {
+      this.selectedCountryCode = selectedCountry.code;
+      this.formData['mobile'] = this.selectedCountryCode + ' ';
+
+      // Update email suggestions when the country is selected
+      if (selectedCountry.emailDomains) {
+        this.emailSuggestions = selectedCountry.emailDomains.map((domain: string) => `yourname@${domain}`);
+        console.log(this.emailSuggestions)
+        this.showSuggestions = this.emailSuggestions.length > 0;
+      } else {
+        this.emailSuggestions = [];
+        this.showSuggestions = false;
+      }
+    }
+  }
+
+  //Used to suggest the email 
+  selectEmailSuggestion(suggestion: any) {
+    this.formData['email'] = suggestion;
+    this.showSuggestions = false;
   }
 
   validateName() {
@@ -58,7 +97,7 @@ export class MemberRegistrationComponent {
 
   validateMobile() {
     let mobileNumber = this.formData['mobile']?.trim() || '';
-    const mobileRegex = /^\d{10}$/; //Only 10-digit numbers allowed
+    const mobileRegex = /\+\d{2,4}\s*\d{10}$/; //Only 10-digit numbers allowed
 
     if (mobileNumber === '') {
       this.mobileError = false;
@@ -68,19 +107,31 @@ export class MemberRegistrationComponent {
       this.mobileError = false;
     }
 
-    this.formData['mobile'] = mobileNumber.replace(/\D/g, ''); //Remove non-numeric characters
   }
-
   validateEmail() {
     const emailValue = this.formData['email']?.trim() || '';
     const emailRegex = /^[a-z0-9._+-]+@[a-z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailParts = emailValue.split('@');
 
     if (emailValue === '') {
       this.emailError = false;
-    } else if (!emailRegex.test(emailValue)) {
+      this.showSuggestions = false;
+      return;
+    }
+
+    if (!emailRegex.test(emailValue)) {
       this.emailError = true;
-    } else {
-      this.emailError = false;
+      this.showSuggestions = false;
+      return;
+    }
+
+    this.emailError = false;
+
+    // Ensure suggestions are available if country has email domains
+    const selectedCountry = this.countries.find(c => c.code === this.selectedCountryCode);
+    if (selectedCountry && selectedCountry.emailDomains && emailParts.length === 1) {
+      this.emailSuggestions = selectedCountry.emailDomains.map((domain: string) => `${emailParts[0]}@${domain}`);
+      this.showSuggestions = this.emailSuggestions.length > 0;
     }
   }
 
@@ -100,7 +151,7 @@ export class MemberRegistrationComponent {
     }
 
     // Convert form data to JSON format for display
-    this.formattedFormData = JSON.stringify(this.formData, null, 2);
+    // this.formattedFormData = JSON.stringify(this.formData, null, 2);
     this.showPopup = true; // Show popup
   }
 
@@ -116,4 +167,5 @@ export class MemberRegistrationComponent {
   closePopup() {
     this.showPopup = false; //Close popup when clicking "X"
   }
+
 }

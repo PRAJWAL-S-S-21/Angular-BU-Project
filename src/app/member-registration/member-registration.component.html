@@ -6,51 +6,46 @@
         {{ field.label }} <span *ngIf="field.required" style="color: red">*</span>
 
         <!-- Address Field -->
-        <kendo-textarea *ngIf="field.show && field.type === 'textarea'" 
-            [(ngModel)]="formData[field.name]" 
-            [name]="field.name" 
-            [rows]="3"
-            [cols]="40">
+        <kendo-textarea *ngIf="field.show && field.type === 'textarea'" [(ngModel)]="formData[field.name]"
+          [name]="field.name" [rows]="3" [cols]="40">
         </kendo-textarea>
 
-        <!-- Other Input Fields -->
-        <input *ngIf="field.show && field.type !== 'textarea' && field.type !== 'tel' && field.name !== 'name' && field.name !== 'email'" 
-        [type]="field.type" 
-        [(ngModel)]="formData[field.name]" 
-        [name]="field.name" />
 
         <!-- Name Field -->
-        <input *ngIf="field.show && field.name === 'name'"
-            type="text"
-            [(ngModel)]="formData[field.name]" 
-            [name]="field.name"
-            (input)="validateName()" />
+        <input *ngIf="field.show && field.name === 'name'" type="text" [(ngModel)]="formData[field.name]"
+          [name]="field.name" (input)="validateName()" />
 
         <!-- Error Message (Name) -->
         <div *ngIf="nameError && field.name === 'name'" class="error-message">
           Name can only contain letters (A-Z, a-z)
         </div>
 
-        <!-- Email Field -->
-        <input *ngIf="field.show && field.type === 'email'"
-            type="email"
-            [(ngModel)]="formData[field.name]" 
-            [name]="field.name"
-            (input)="validateEmail()" />
+        <!-- Email Field with Suggestions -->
+        <div *ngIf="field.show && field.type === 'email'">
+          <input type="email" [(ngModel)]="formData[field.name]" [name]="field.name" (input)="validateEmail()" />
 
+          <!-- Email Suggestions Dropdown -->
+          <ul *ngIf="showSuggestions && emailSuggestions.length > 0" class="email-suggestions">
+            <li *ngFor="let suggestion of emailSuggestions" (click)="selectEmailSuggestion(suggestion)">
+              {{ suggestion }}
+            </li>
+          </ul>
+        </div>
         <!-- Error Message (Email) -->
         <div *ngIf="emailError && field.name === 'email'" class="error-message">
-          Please enter a valid email address (e.g., example@domain.com)
+          Please enter a valid email address (e.g., exampledomain.com)
         </div>
 
         <!-- Mobile Number Field -->
-        <input *ngIf="field.show && field.type === 'tel'" 
-            type="tel"
-            [(ngModel)]="formData[field.name]" 
-            [name]="field.name"
-            pattern="[0-9+()-\s]*"
-            inputmode="tel"
-            (input)="validateMobile()" />
+        <div *ngIf="field.show && field.type === 'tel'">
+          <select (change)="onCountryChange($event)">
+            <option *ngFor="let country of countries" [value]="country.code">
+              {{ country.name }} ({{ country.code }})
+            </option>
+          </select>
+          <input *ngIf="field.show && field.type === 'tel'" type="tel" [(ngModel)]="formData[field.name]"
+            [name]="field.name" pattern="[0-9+()-\s]*" inputmode="tel" (input)="validateMobile()" />
+        </div>
 
         <!-- Error Message (Mobile) -->
         <div *ngIf="mobileError && field.name === 'mobile'" class="error-message">
@@ -82,5 +77,3 @@
     </div>
   </div>
 </div>
-
-
