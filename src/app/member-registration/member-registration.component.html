@@ -21,30 +21,41 @@
         </div>
 
         <!-- Email Field with Suggestions -->
-        <div *ngIf="field.show && field.type === 'email'">
-          <input type="email" [(ngModel)]="formData[field.name]" [name]="field.name" (input)="validateEmail()" />
+        <div *ngIf="field.show && field.type === 'email'" class="email-field-container">
+          <input type="email" [(ngModel)]="formData[field.name]" [name]="field.name" (input)="validateEmail()"
+            (focus)="onEmailFocus()" (blur)="onEmailBlur()" />
 
           <!-- Email Suggestions Dropdown -->
-          <ul *ngIf="showSuggestions && emailSuggestions.length > 0" class="email-suggestions">
-            <li *ngFor="let suggestion of emailSuggestions" (click)="selectEmailSuggestion(suggestion)">
+          <div *ngIf="showSuggestions && emailSuggestions.length" class="email-suggestions-container">
+            <div *ngFor="let suggestion of emailSuggestions" class="email-suggestion"
+              (mousedown)="selectEmailSuggestion(suggestion)">
               {{ suggestion }}
-            </li>
-          </ul>
-        </div>
-        <!-- Error Message (Email) -->
-        <div *ngIf="emailError && field.name === 'email'" class="error-message">
-          Please enter a valid email address (e.g., exampledomain.com)
+            </div>
+          </div>
+
+          <!-- Error Message (Email) -->
+          <div *ngIf="emailError" class="error-message">
+            Please enter a valid email address
+          </div>
         </div>
 
         <!-- Mobile Number Field -->
-        <div *ngIf="field.show && field.type === 'tel'">
-          <select (change)="onCountryChange($event)">
-            <option *ngFor="let country of countries" [value]="country.code">
-              {{ country.name }} ({{ country.code }})
-            </option>
-          </select>
-          <input *ngIf="field.show && field.type === 'tel'" type="tel" [(ngModel)]="formData[field.name]"
-            [name]="field.name" pattern="[0-9+()-\s]*" inputmode="tel" (input)="validateMobile()" />
+        <div *ngIf="field.show && field.type === 'tel'" class="mobile-input-container">
+          <div class="country-selector-wrapper">
+            <div class="country-selector" (click)="toggleCountryDropdown()">
+              <img [src]="getSelectedCountryFlag()" class="selected-flag" *ngIf="selectedCountryCode" />
+              <span>{{ selectedCountryCode || 'Select' }}</span>
+              <span class="dropdown-arrow">▼</span>
+            </div>
+            <div class="country-dropdown" *ngIf="showCountryDropdown">
+              <div *ngFor="let country of countries" class="country-option" (click)="selectCountry(country)">
+                <img [src]="country.flag" class="country-flag" />
+                <span>{{ country.name }} ({{ country.code }})</span>
+              </div>
+            </div>
+          </div>
+          <input type="tel" [(ngModel)]="formData[field.name]" [name]="field.name" pattern="[0-9+()-\s]*"
+            inputmode="tel" (input)="validateMobile()" (keypress)="numericOnly($event)"/>
         </div>
 
         <!-- Error Message (Mobile) -->

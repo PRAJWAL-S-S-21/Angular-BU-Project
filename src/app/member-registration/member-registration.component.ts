@@ -23,20 +23,35 @@ export class MemberRegistrationComponent {
   emailSuggestions: string[] = [];
   showSuggestions = false;
   countries: any[] = [];
+  showCountryDropdown = false;
+  private suggestionTimeout: any;
+
+
 
   constructor(private formConfigService: FormConfigService, private countryService: CountryService) { }
 
-  ngOnInit() {
-    this.formConfigService.formFields$.subscribe(fields => {
-      this.fields = [...fields];
-      this.sortFields();
-      this.initializeFormData();
-    });
+ // In your ngOnInit() method, modify it like this:
+ngOnInit() {
+  this.formConfigService.formFields$.subscribe(fields => {
+    this.fields = [...fields];
+    this.sortFields();
+    this.initializeFormData();
+  });
 
-    this.countryService.getCountries().subscribe(countries => {
-      this.countries = countries;
-    })
-  }
+  this.countryService.getCountries().subscribe(countries => {
+    this.countries = countries;
+    // Set default country to India after countries are loaded
+    const india = this.countries.find(c => c.code === '+91');
+    this.selectCountry(india);
+    if (india) {
+      this.selectedCountryCode = '+91';
+      // Initialize mobile field with country code if empty
+      if (!this.formData['mobile']) {
+        this.formData['mobile'] = '';
+      }
+    }
+  });
+}
 
   sortFields() {
     this.sortedFields = [...this.fields].sort((a, b) => a.order - b.order);
@@ -61,11 +76,12 @@ export class MemberRegistrationComponent {
     if (selectedCountry) {
       this.selectedCountryCode = selectedCountry.code;
       this.formData['mobile'] = this.selectedCountryCode + ' ';
+      this.formData['flag'] = selectedCountry.flag;
+      
 
       // Update email suggestions when the country is selected
       if (selectedCountry.emailDomains) {
         this.emailSuggestions = selectedCountry.emailDomains.map((domain: string) => `yourname@${domain}`);
-        console.log(this.emailSuggestions)
         this.showSuggestions = this.emailSuggestions.length > 0;
       } else {
         this.emailSuggestions = [];
@@ -74,10 +90,36 @@ export class MemberRegistrationComponent {
     }
   }
 
+  toggleCountryDropdown() {
+    this.showCountryDropdown = !this.showCountryDropdown;
+  }
+  
+  selectCountry(country: any) {
+    this.selectedCountryCode = country.code;
+    // this.formData['mobile'] = country.code + ' ';
+    this.showCountryDropdown = false;
+    
+    // Update email suggestions
+    if (country.emailDomains) {
+      this.emailSuggestions = country.emailDomains.map((domain: string) => `yourname@${domain}`);
+      this.showSuggestions = this.emailSuggestions.length > 0;
+    } else {
+      this.emailSuggestions = [];
+      this.showSuggestions = false;
+    }
+  }
+
+  getSelectedCountryFlag(): string {
+    if (!this.selectedCountryCode) return '';
+    const country = this.countries.find(c => c.code === this.selectedCountryCode);
+    return country ? country.flag : '';
+  }
+
   //Used to suggest the email 
   selectEmailSuggestion(suggestion: any) {
-    this.formData['email'] = suggestion;
+    this.formData['email'] = suggestion.trim();
     this.showSuggestions = false;
+    this.emailError = false;
   }
 
   validateName() {
@@ -97,7 +139,7 @@ export class MemberRegistrationComponent {
 
   validateMobile() {
     let mobileNumber = this.formData['mobile']?.trim() || '';
-    const mobileRegex = /\+\d{2,4}\s*\d{10}$/; //Only 10-digit numbers allowed
+    const mobileRegex = /\d{10}$/; //Only 10-digit numbers allowed
 
     if (mobileNumber === '') {
       this.mobileError = false;
@@ -106,36 +148,68 @@ export class MemberRegistrationComponent {
     } else {
       this.mobileError = false;
     }
-
   }
-  validateEmail() {
-    const emailValue = this.formData['email']?.trim() || '';
-    const emailRegex = /^[a-z0-9._+-]+@[a-z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const emailParts = emailValue.split('@');
 
-    if (emailValue === '') {
-      this.emailError = false;
-      this.showSuggestions = false;
-      return;
+  // to ensur ethat only numerical values are give to mobile number 
+  numericOnly(event : KeyboardEvent): boolean{
+    const charCode = (event.which) ? event.which : event.keyCode;
+    const input = event.target as HTMLInputElement;
+    const currentValue = input.value.replace(/\D/g, '');
+    if(charCode > 31 && (charCode < 48 || charCode > 57)){
+      event.preventDefault();
+      return false;
     }
-
-    if (!emailRegex.test(emailValue)) {
-      this.emailError = true;
-      this.showSuggestions = false;
-      return;
+    if (currentValue.length >= 10) {
+      event.preventDefault();
+      return false;
     }
-
+    return true;
+  }
+// In your component
+validateEmail() {
+  const emailValue = this.formData['email']?.trim() || '';
+  const emailParts = emailValue.split('@');
+  
+  // Always hide suggestions when empty
+  if (!emailValue) {
+    this.showSuggestions = false;
     this.emailError = false;
+    return;
+  }
 
-    // Ensure suggestions are available if country has email domains
+  // Show suggestions only when before @ symbol
+  if (emailParts.length === 1) {
     const selectedCountry = this.countries.find(c => c.code === this.selectedCountryCode);
-    if (selectedCountry && selectedCountry.emailDomains && emailParts.length === 1) {
-      this.emailSuggestions = selectedCountry.emailDomains.map((domain: string) => `${emailParts[0]}@${domain}`);
+    if (selectedCountry?.emailDomains) {
+      this.emailSuggestions = selectedCountry.emailDomains.map((domain:any) => `${emailValue}@${domain}`);
       this.showSuggestions = this.emailSuggestions.length > 0;
     }
+  } else {
+    this.showSuggestions = false;
   }
 
+  // Validate email format
+  const emailRegex = /^[a-z0-9._+-]+@[a-z0-9.-]+\.[a-zA-Z]{2,}$/;
+  this.emailError = !emailRegex.test(emailValue);
+}
+
+
+onEmailFocus() {
+  this.showSuggestions = true;
+  if (this.suggestionTimeout) {
+    clearTimeout(this.suggestionTimeout);
+  }
+}
+
+onEmailBlur() {
+  this.suggestionTimeout = setTimeout(() => {
+    this.showSuggestions = false;
+  }, 200);
+}
+
   openConfirmationPopup() {
+    this.formData['mobile'] = this.selectedCountryCode + '-' +this.formData['mobile'];
+
     //Validate required fields
     const missingRequiredField = this.sortedFields.find(field => field.required && !this.formData[field.name]?.trim());
     if (missingRequiredField) {

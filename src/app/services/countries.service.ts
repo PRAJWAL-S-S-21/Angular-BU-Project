@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 interface CountryData {
   name: { common: string };
   idd: { root: string; suffixes: string[] };
+  flags: { png: string };  // Add flags property
 }
 
 @Injectable({
@@ -22,7 +23,8 @@ export class CountryService {
       map((countries) => countries.map((country) => ({
         name: country.name.common,
         code: `${country.idd.root}${country.idd.suffixes?.[0] || ''}`,
-        emailDomains: this.getEmailDomains(country.name.common)
+        emailDomains: this.getEmailDomains(country.name.common),
+        flag: country.flags.png // Include the flag image URL
       })))
     );
   }
