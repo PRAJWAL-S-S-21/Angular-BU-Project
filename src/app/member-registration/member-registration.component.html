@@ -1,12 +1,14 @@
-<div class="member-registration">
+
+ <div class="member-registration">
   <h2>Member Registration</h2>
+  
   <form (ngSubmit)="openConfirmationPopup()">
     <div *ngFor="let field of sortedFields">
-      <label *ngIf="field.show">
-        {{ field.label }} <span *ngIf="field.required" style="color: red">*</span>
+      <label *ngIf="field.show && ((currentStep === 1 && field.order <= 4) || (currentStep === 2 && field.order > 4))">
+        {{ field.label }} <span *ngIf="field.required" style="color: rgb(255, 0, 0)">*</span>
 
         <!-- Address Field -->
-        <kendo-textarea *ngIf="field.show && field.type === 'textarea'" 
+        <kendo-textarea *ngIf="field.type === 'textarea'" 
             [(ngModel)]="formData[field.name]" 
             [name]="field.name" 
             [rows]="3"
@@ -14,57 +16,49 @@
         </kendo-textarea>
 
         <!-- Other Input Fields -->
-        <input *ngIf="field.show && field.type !== 'textarea' && field.type !== 'tel' && field.name !== 'name' && field.name !== 'email'" 
-        [type]="field.type" 
-        [(ngModel)]="formData[field.name]" 
-        [name]="field.name" />
-
-        <!-- Name Field -->
-        <input *ngIf="field.show && field.name === 'name'"
-            type="text"
+        <input *ngIf="field.type !== 'textarea' && field.type !== 'tel'"
+            [type]="field.type"
             [(ngModel)]="formData[field.name]" 
             [name]="field.name"
-            (input)="validateName()" />
+            (input)="validateField(field.name)" />
 
-        <!-- Error Message (Name) -->
-        <div *ngIf="nameError && field.name === 'name'" class="error-message">
+        
+        <input *ngIf = "field.type === 'tel'" 
+                type="tel"
+                [(ngModel)] = "formData[field.name]"
+                [name] = "field.name"
+                pattern="[0-9]*"
+                inputmode="numeric"
+                maxlength="10"
+                (input) = "validateMobile()"
+                (keydown) = "restrictMobileInput($event)" />
+        
+        <!-- Validation Error Messages -->
+        <div *ngIf="field.name === 'name' && nameError" class="error-message">
           Name can only contain letters (A-Z, a-z)
         </div>
 
-        <!-- Email Field -->
-        <input *ngIf="field.show && field.type === 'email'"
-            type="email"
-            [(ngModel)]="formData[field.name]" 
-            [name]="field.name"
-            (input)="validateEmail()" />
-
-        <!-- Error Message (Email) -->
-        <div *ngIf="emailError && field.name === 'email'" class="error-message">
-          Please enter a valid email address (e.g., example@domain.com)
+        <div *ngIf="field.name === 'email' && emailError" class="error-message">
+          Please enter a valid email address.
         </div>
 
-        <!-- Mobile Number Field -->
-        <input *ngIf="field.show && field.type === 'tel'" 
-            type="tel"
-            [(ngModel)]="formData[field.name]" 
-            [name]="field.name"
-            pattern="[0-9+()-\s]*"
-            inputmode="tel"
-            (input)="validateMobile()" />
-
-        <!-- Error Message (Mobile) -->
-        <div *ngIf="mobileError && field.name === 'mobile'" class="error-message">
+        <div *ngIf="field.name === 'mobile' && mobileError" class="error-message">
           Please enter a valid mobile number.
         </div>
-
       </label>
     </div>
 
-    <button kendoButton type="submit">Submit</button>
+    <!-- Navigation Buttons -->
+     <div class="form-buttons">
+      <button type="button" *ngIf="currentStep === 2" (click)="prevStep()">Prev</button>
+      <button type = "button" *ngIf="isAddressEnabled && currentStep === 1" (click)="nextStep()">Next</button>     
+    </div>
+
+    <button *ngIf="!isAddressEnabled || currentStep === 2" kendoButton type="submit">Submit</button>
   </form>
 </div>
 
-<!--  Custom Confirmation Popup -->
+<!-- Custom Confirmation Popup -->
 <div class="custom-dialog" *ngIf="showPopup">
   <div class="custom-dialog-content">
     <span class="close-btn" (click)="closePopup()">&times;</span>
@@ -72,7 +66,9 @@
 
     <div class="form-summary">
       <div *ngFor="let field of sortedFields" class="summary-row">
-        <strong>{{ field.label }}:</strong> {{ formData[field.name] || 'N/A' }}
+        <i class="material-icons">{{ getMaterialIcon(field.name) }}</i>
+        <strong>{{ field.label }}:</strong>
+        <span>{{ formData[field.name] || 'N/A' }}</span>
       </div>
     </div>
 
@@ -82,5 +78,3 @@
     </div>
   </div>
 </div>
-
-

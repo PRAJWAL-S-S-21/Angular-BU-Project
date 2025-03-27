@@ -16,8 +16,11 @@ export class MemberRegistrationComponent {
   nameError: boolean = false;
   emailError: boolean = false;
   isMobileNumberLessThanTen: boolean = false;
-  showPopup: boolean = false; // Controls popup visibility
-  formattedFormData: string = ''; //Stores JSON formatted data
+  showPopup: boolean = false; 
+  formattedFormData: string = ''; 
+
+  currentStep : number = 1;
+  isAddressEnabled: boolean = false;
 
   constructor(private formConfigService: FormConfigService) {}
 
@@ -26,94 +29,128 @@ export class MemberRegistrationComponent {
       this.fields = [...fields];
       this.sortFields();
       this.initializeFormData();
+
+      const addressField = this.fields.find(fields => fields.name === 'address');
+      this.isAddressEnabled = addressField ? addressField.show : false;
     });
   }
 
   sortFields() {
-    this.sortedFields = [...this.fields].sort((a, b) => a.order - b.order);
+    this.sortedFields = [...this.fields].sort((a, b) => a.order - b.order);    
   }
 
   initializeFormData() {
     this.sortedFields.forEach(field => {
       if (this.formData[field.name] === undefined) {
-        this.formData[field.name] = ''; // Set default value to empty string
+        this.formData[field.name] = ''; 
       }
     });
   }
 
-  validateName() {
-    const nameValue = this.formData['name']?.trim() || '';
-    const nameRegex = /^[A-Za-z][A-Za-z\s]*$/;
 
-    if (nameValue === '') {
-      this.nameError = false;
-    } else if (!nameRegex.test(nameValue)) {
-      this.nameError = true;
-    } else {
-      this.nameError = false;
+  validateField(fieldName: string) {
+    if (fieldName === 'name') {
+      const nameValue = this.formData['name']?.trim() || '';
+      this.nameError = nameValue !== '' && !/^[A-Za-z][A-Za-z\s]*$/.test(nameValue);
+    } else if (fieldName === 'mobile') {
+      const mobileValue = this.formData['mobile']?.trim() || '';
+      this.mobileError = mobileValue !== '' && !/^\d{10}$/.test(mobileValue);
+    } else if (fieldName === 'email') {
+      const emailValue = this.formData['email']?.trim() || '';
+      this.emailError = emailValue !== '' && !/^[a-z0-9._+-]+@[a-z0-9.-]+\.[a-zA-Z]{2,}$/.test(emailValue);
     }
-
-    this.formData['name'] = nameValue;
   }
 
-  validateMobile() {
-    let mobileNumber = this.formData['mobile']?.trim() || '';
-    const mobileRegex = /^\d{10}$/; //Only 10-digit numbers allowed
-
-    if (mobileNumber === '') {
-      this.mobileError = false;
-    } else if (!mobileRegex.test(mobileNumber)) {
-      this.mobileError = true;
-    } else {
-      this.mobileError = false;
-    }
-
-    this.formData['mobile'] = mobileNumber.replace(/\D/g, ''); //Remove non-numeric characters
+  validateMobile()
+  {
+    const mobileValue = this.formData['mobile']?.trim() || '';
+    this.mobileError = mobileValue != '' && !/^\d{10}$/.test(mobileValue);
   }
 
-  validateEmail() {
-    const emailValue = this.formData['email']?.trim() || '';
-    const emailRegex = /^[a-z0-9._+-]+@[a-z0-9.-]+\.[a-zA-Z]{2,}$/;
+  restrictMobileInput(event : KeyboardEvent)
+  {
+    const input = event.target as HTMLInputElement;
+    const currentValue = input.value || '';
 
-    if (emailValue === '') {
-      this.emailError = false;
-    } else if (!emailRegex.test(emailValue)) {
-      this.emailError = true;
-    } else {
-      this.emailError = false;
+    if (event.key === 'Backspace' || event.key === 'Delete' || 
+      event.key === 'ArrowLeft' || event.key === 'ArrowRight' || 
+      event.key === 'Tab') 
+      {
+        return;
+      }
+
+    if(!/^\d$/.test(event.key))
+    {
+      event.preventDefault();
     }
+
+    if(currentValue.length >= 10)
+    {
+      event.preventDefault();
+    }
+
+  }
+
+  nextStep() {
+    const missingRequiredField = this.sortedFields.find(field =>
+      field.required && field.order <= 4 && !this.formData[field.name]?.trim()
+    );
+    if (missingRequiredField) {
+      alert(`Please fill the required field: ${missingRequiredField.label}`);
+      return;
+    } 
+    this.currentStep = 2;
+  }
+
+  prevStep() {
+    this.currentStep = 1;
   }
 
   openConfirmationPopup() {
-    //Validate required fields
+
     const missingRequiredField = this.sortedFields.find(field => field.required && !this.formData[field.name]?.trim());
     if (missingRequiredField) {
       alert(`Please fill the required field: ${missingRequiredField.label}`);
       return;
     }
 
-    //Prevent submission if all fields are empty
     const isAllEmpty = Object.values(this.formData).every(value => value === '');
     if (isAllEmpty) {
       alert("You must fill at least one field before submitting.");
       return;
     }
-
-    // Convert form data to JSON format for display
-    this.formattedFormData = JSON.stringify(this.formData, null, 2);
-    this.showPopup = true; // Show popup
+    
+    this.showPopup = true; 
   }
 
   editForm() {
-    this.showPopup = false; // Close popup and return to form
+    this.showPopup = false; 
   }
 
   submitForm() {
-    this.showPopup = false; // Close popup
-    alert('Form submitted successfully!'); // Replace with actual submission logic
+    this.showPopup = false; 
+    alert('Form submitted successfully!');
+    this.formData = {};
+    this.currentStep = 1;
+    this.initializeFormData();
   }
 
   closePopup() {
-    this.showPopup = false; //Close popup when clicking "X"
+    this.showPopup = false;
   }
+
+  getMaterialIcon(fieldName: string): string {
+    const iconMap: { [key: string]: string } = {
+      'name': 'person',
+      'mobile': 'phone',
+      'email': 'email',
+      'address': 'location_on',
+      'city': 'location_city',
+      'state': 'flag',
+      'pincode': 'pin_drop'
+    };
+  
+    return iconMap[fieldName] || 'help_outline';
+  }
+  
 }
