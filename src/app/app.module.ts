@@ -17,12 +17,6 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { DialogsModule } from '@progress/kendo-angular-dialog';
 import {  HttpClientModule } from '@angular/common/http';
 
-
-
-
-
-
-
 @NgModule({
   declarations: [
     AppComponent,

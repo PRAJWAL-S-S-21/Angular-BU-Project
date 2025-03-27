@@ -150,6 +150,7 @@ ngOnInit() {
     }
   }
 
+
 validateEmail() {
   const emailValue = this.formData['email']?.trim() || '';
   const emailParts = emailValue.split('@');
