@@ -55,7 +55,7 @@
             </div>
           </div>
           <input type="tel" [(ngModel)]="formData[field.name]" [name]="field.name" pattern="[0-9+()-\s]*"
-            inputmode="tel" (input)="validateMobile()" (keypress)="numericOnly($event)"/>
+            inputmode="tel" (input)="validateMobile()"/>
         </div>
 
         <!-- Error Message (Mobile) -->

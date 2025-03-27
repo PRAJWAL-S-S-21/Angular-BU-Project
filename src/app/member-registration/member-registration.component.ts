@@ -150,22 +150,6 @@ ngOnInit() {
     }
   }
 
-  // to ensur ethat only numerical values are give to mobile number 
-  numericOnly(event : KeyboardEvent): boolean{
-    const charCode = (event.which) ? event.which : event.keyCode;
-    const input = event.target as HTMLInputElement;
-    const currentValue = input.value.replace(/\D/g, '');
-    if(charCode > 31 && (charCode < 48 || charCode > 57)){
-      event.preventDefault();
-      return false;
-    }
-    if (currentValue.length >= 10) {
-      event.preventDefault();
-      return false;
-    }
-    return true;
-  }
-// In your component
 validateEmail() {
   const emailValue = this.formData['email']?.trim() || '';
   const emailParts = emailValue.split('@');
