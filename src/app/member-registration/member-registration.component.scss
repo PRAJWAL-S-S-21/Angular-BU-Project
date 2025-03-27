@@ -271,3 +271,155 @@ button:last-child:hover {
   background: #aaaaaa;
 }
 
+.email-field-container {
+  position: relative;
+  width: 100%;
+
+  input[type="email"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    
+    &:focus {
+      outline: none;
+      border-color: #000;
+    }
+  }
+
+  /* Email Suggestions */
+  .email-suggestions-container {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 100;
+    
+    .email-suggestion {
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      
+      &:hover {
+        background: #f5f5f5;
+      }
+      
+      &:not(:last-child) {
+        border-bottom: 1px solid #eee;
+      }
+    }
+  }
+
+  /* Error Message */
+  .error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+  }
+}
+
+.mobile-input-container {
+  display: flex;
+  width: 100%;
+  position: relative;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: white;
+  height: 40px;
+
+  .country-selector-wrapper {
+    position: relative;
+    height: 100%;
+
+    .country-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      height: 100%;
+      cursor: pointer;
+      background: #f8f8f8;
+      border-right: 1px solid #d9d9d9;
+      min-width: 100px;
+
+      .selected-flag {
+        width: 20px;
+        height: 15px;
+        object-fit: cover;
+      }
+
+      span {
+        font-size: 14px;
+        color: #333;
+      }
+
+      .dropdown-arrow {
+        margin-left: auto;
+        font-size: 10px;
+        color: #666;
+      }
+    }
+
+    .country-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 280px;
+      max-height: 250px;
+      overflow-y: auto;
+      background: white;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 100;
+      margin-top: 4px;
+
+      .country-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 12px;
+        cursor: pointer;
+        transition: background 0.2s;
+
+        &:hover {
+          background: #f5f5f5;
+        }
+
+        .country-flag {
+          width: 20px;
+          height: 15px;
+          object-fit: cover;
+        }
+
+        span {
+          font-size: 14px;
+          color: #333;
+        }
+      }
+    }
+  }
+
+  input[type="tel"] {
+    flex: 1;
+    padding: 0 12px;
+    border: none;
+    outline: none;
+    height: 100%;
+    font-size: 14px;
+    color: #333;
+
+    &::placeholder {
+      color: #999;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormField } from '../models/form-field.model';
 import { FormConfigService } from '../services/form-config.service';
+import { CountryService } from '../services/country.service';
 
 @Component({
   selector: 'app-member-registration',
@@ -22,7 +23,14 @@ export class MemberRegistrationComponent {
   currentStep : number = 1;
   isAddressEnabled: boolean = false;
 
-  constructor(private formConfigService: FormConfigService) {}
+  selectedCountryCode: string = '';
+  emailSuggestions: string[] = [];
+  showSuggestions = false;
+  countries: any[] = [];
+  showCountryDropdown = false;
+  private suggestionTimeout: any;
+
+  constructor(private formConfigService: FormConfigService, private countryService: CountryService) { }
 
   ngOnInit() {
     this.formConfigService.formFields$.subscribe(fields => {
@@ -32,6 +40,20 @@ export class MemberRegistrationComponent {
 
       const addressField = this.fields.find(fields => fields.name === 'address');
       this.isAddressEnabled = addressField ? addressField.show : false;
+    });
+
+    this.countryService.getCountries().subscribe(countries => {
+      this.countries = countries;
+      // Set default country to India after countries are loaded
+      const india = this.countries.find(c => c.code === '+91');
+      this.selectCountry(india);
+      if (india) {
+        this.selectedCountryCode = '+91';
+        // Initialize mobile field with country code if empty
+        if (!this.formData['mobile']) {
+          this.formData['mobile'] = '';
+        }
+      }
     });
   }
 
@@ -153,4 +175,81 @@ export class MemberRegistrationComponent {
     return iconMap[fieldName] || 'help_outline';
   }
   
+
+  toggleCountryDropdown() {
+    this.showCountryDropdown = !this.showCountryDropdown;
+  }
+
+  getSelectedCountryFlag(): string {
+    if (!this.selectedCountryCode) return '';
+    const country = this.countries.find(c => c.code === this.selectedCountryCode);
+    return country ? country.flag : '';
+  }
+
+  selectCountry(country: any) {
+    this.selectedCountryCode = country.code;
+    // this.formData['mobile'] = country.code + ' ';
+    this.showCountryDropdown = false;
+    
+    // Update email suggestions
+    if (country.emailDomains) {
+      this.emailSuggestions = country.emailDomains.map((domain: string) => `@${domain}`);
+      // this.showSuggestions = this.emailSuggestions.length > 0;
+    } else {
+      this.emailSuggestions = [];
+      this.showSuggestions = false;
+    }
+  }
+
+  validateEmail() {
+    const emailValue = this.formData['email']?.trim() || '';
+    if (emailValue.includes("@")) {
+      this.showSuggestions = this.emailSuggestions.length > 0;
+    }
+    const emailParts = emailValue.split('@');
+   
+    
+    // Always hide suggestions when empty
+    if (!emailValue) {
+      this.showSuggestions = false;
+      this.emailError = false;
+      return;
+    }
+  
+    // Show suggestions only when before @ symbol
+    if (emailParts.length === 1) {
+      console.log('praj bsdk')
+      const selectedCountry = this.countries.find(c => c.code === this.selectedCountryCode);
+      if (selectedCountry?.emailDomains) {
+        this.emailSuggestions = selectedCountry.emailDomains.map((domain:any) => `${emailValue}@${domain}`);
+        this.showSuggestions = this.emailSuggestions.length > 0;
+      }
+    } else {
+      this.showSuggestions = false;
+    }
+  
+    // Validate email format
+    const emailRegex = /^[a-z0-9._+-]+@[a-z0-9.-]+\.[a-zA-Z]{2,}$/;
+    this.emailError = !emailRegex.test(emailValue);
+  }
+
+  
+onEmailFocus() {
+  this.showSuggestions = true;
+  if (this.suggestionTimeout) {
+    clearTimeout(this.suggestionTimeout);
+  }
+}
+
+onEmailBlur() {
+  this.suggestionTimeout = setTimeout(() => {
+    this.showSuggestions = false;
+  }, 200);
+}
+
+selectEmailSuggestion(suggestion: any) {
+  this.formData['email'] = suggestion.trim();
+  this.showSuggestions = false;
+  this.emailError = false;
+}
 }

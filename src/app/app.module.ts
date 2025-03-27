@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 import { pipe } from 'rxjs';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { DialogsModule } from '@progress/kendo-angular-dialog';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { DialogsModule } from '@progress/kendo-angular-dialog';
     FormsModule,
     DragDropModule,
     AppRoutingModule,
-    DialogsModule
+    DialogsModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
