@@ -16,12 +16,6 @@ import { pipe } from 'rxjs';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { DialogsModule } from '@progress/kendo-angular-dialog';
 
-
-
-
-
-
-
 @NgModule({
   declarations: [
     AppComponent,
