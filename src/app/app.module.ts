@@ -11,10 +11,11 @@ import { GridModule } from '@progress/kendo-angular-grid';
 import { FormConfigComponent } from './form-config/form-config.component';
 import { MemberRegistrationComponent } from './member-registration/member-registration.component';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { pipe } from 'rxjs';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { DialogsModule } from '@progress/kendo-angular-dialog';
+import {  HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,9 @@ import { DialogsModule } from '@progress/kendo-angular-dialog';
     FormsModule,
     DragDropModule,
     AppRoutingModule,
-    DialogsModule
+    DialogsModule,
+    HttpClientModule,
+    ReactiveFormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

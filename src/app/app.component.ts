@@ -9,6 +9,7 @@ import { FormField } from './models/form-field.model';
 export class AppComponent {
   title = 'member-registraion-form';
 
+
   // fields: FormField[] = [
   //   { name: 'firstName', label: 'First Name', type: 'text', show: true, required: true, order: 1 },
   //   { name: 'lastName', label: 'Last Name', type: 'text', show: true, required: false, order: 2 },
@@ -20,5 +21,6 @@ export class AppComponent {
   //   // Replace the fields array to trigger change detection
   //   this.fields = [...updatedFields];
   // }
+
 
 }
