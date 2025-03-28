@@ -19,7 +19,8 @@
         <!-- Show Field Checkbox (Kendo UI) -->
         <kendo-checkbox [(ngModel)]="field.show" 
                         (change)="onShowChange(field)" 
-                        [ngModelOptions]="{standalone: true}">
+                        [ngModelOptions]="{standalone: true}"
+                        [disabled]=" ['City','State','Pincode'].includes(field.label) && (isAddressEnabledfalse()) ">
         </kendo-checkbox>
 
         <!-- Field Name -->

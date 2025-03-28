@@ -50,7 +50,10 @@
               <span class="dropdown-arrow">▼</span>
             </div>
             <div class="country-dropdown" *ngIf="showCountryDropdown">
-              <div *ngFor="let country of countries" class="country-option" (click)="selectCountry(country)">
+              <input type="text" class="search-input" placeholder="search country"
+                                    [(ngModel)]="searchCountry" name="searchCountry" (ngModelChange)="FilterCountry()">
+              <div *ngFor="let country of filterCountries" class="country-option" (click)="selectCountry(country)">
+                
                 <img [src]="country.flag" class="country-flag" />
                 <span>{{ country.name }} ({{ country.code }})</span>
               </div>

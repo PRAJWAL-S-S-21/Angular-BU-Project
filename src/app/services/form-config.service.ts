@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { FormField } from '../models/form-field.model';
+import { Token } from '@angular/compiler';
 
 @Injectable({
   providedIn: 'root'
@@ -20,11 +21,37 @@ export class FormConfigService {
     { name: 'pincode', label: 'Pincode', type: 'text', show: false, required: false, order: 7 },
 
   ]);
-
+  private users=[
+    {username:'admin',password:'Admin@123'}
+  ]
+  
+  
   formFields$ = this.formFieldsSource.asObservable();
-
+  
   updateFields(newFields: FormField[]) {
     console.log(newFields);
     this.formFieldsSource.next(newFields);
   }
+  
+  
+  Login(username:string,password:string):boolean{
+    const token='Logged_In';
+    const user=this.users.find(u=>u.username==username.trim() && u.password==password.trim());
+    console.log(user);
+    if(user){
+      localStorage.setItem('Token',token);
+      return true
+    }
+    return false;
+  }
+
+  isLoggedIn():boolean
+  {
+    return localStorage.getItem('Token')!=null;
+  }
+  Logout(){
+    localStorage.removeItem('Token');
+  }
+
+
 }

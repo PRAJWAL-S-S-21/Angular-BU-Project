@@ -1,7 +1,12 @@
 <!-- <app-form-config (fieldsUpdated)="updateFields($event)"></app-form-config>
 <app-member-registration [fields]="fields"></app-member-registration> -->
 <div class="nav-container">
-  <button kendoButton [routerLink]="'/register'" routerLinkActive="active" class="nav-button">Register</button>
-  <button kendoButton [routerLink]="'/configure'" routerLinkActive="active" class="nav-button">Configure</button>
+  <button kendoButton [routerLink]="'/login'" routerLinkActive="active" class="nav-button" *ngIf="!service.isLoggedIn()">Login</button>
+  <button kendoButton   class="nav-button" *ngIf="service.isLoggedIn()" (click)="Logout()">Logout</button>
+ 
+    <button kendoButton [routerLink]="'/register'" routerLinkActive="active" class="nav-button">Register</button>
+    <button kendoButton [routerLink]="'/configure'" routerLinkActive="active" class="nav-button" (click)="ShowMsg()">Configure</button>
+ 
 </div>
 <router-outlet></router-outlet>
+0

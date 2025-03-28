@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormField } from '../models/form-field.model';
 import { FormConfigService } from '../services/form-config.service';
 import { CountryService } from '../services/country.service';
+import { ToastRef, ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-member-registration',
@@ -10,6 +11,8 @@ import { CountryService } from '../services/country.service';
 })
 export class MemberRegistrationComponent {
   fields: FormField[] = [];
+  searchCountry='';
+
   sortedFields: FormField[] = [];
   formData: { [key: string]: any } = {};
   submitted = false;
@@ -29,8 +32,9 @@ export class MemberRegistrationComponent {
   countries: any[] = [];
   showCountryDropdown = false;
   private suggestionTimeout: any;
+  filterCountries: any[] = [];
 
-  constructor(private formConfigService: FormConfigService, private countryService: CountryService) { }
+  constructor(private formConfigService: FormConfigService, private countryService: CountryService,private toastr:ToastrService) { }
 
   ngOnInit() {
     this.formConfigService.formFields$.subscribe(fields => {
@@ -44,6 +48,8 @@ export class MemberRegistrationComponent {
 
     this.countryService.getCountries().subscribe(countries => {
       this.countries = countries;
+      this.filterCountries = [...this.countries];
+
       // Set default country to India after countries are loaded
       const india = this.countries.find(c => c.code === '+91');
       this.selectCountry(india);
@@ -118,7 +124,8 @@ export class MemberRegistrationComponent {
       field.required && field.order <= 4 && !this.formData[field.name]?.trim()
     );
     if (missingRequiredField) {
-      alert(`Please fill the required field: ${missingRequiredField.label}`);
+      this.toastr.error(`Please fill the required field: ${missingRequiredField.label}`)
+      // alert(`Please fill the required field: ${missingRequiredField.label}`);
       return;
     } 
     this.currentStep = 2;
@@ -129,20 +136,26 @@ export class MemberRegistrationComponent {
   }
 
   openConfirmationPopup() {
-
+    this.formData['mobile'] = this.selectedCountryCode + '-' + this.formData['mobile'];
+    console.log(this.formData['mobile']);
     const missingRequiredField = this.sortedFields.find(field => field.required && !this.formData[field.name]?.trim());
     if (missingRequiredField) {
-      alert(`Please fill the required field: ${missingRequiredField.label}`);
+      this.toastr.error(`Please fill the required field: ${missingRequiredField.label}`)
+      // alert(`Please fill the required field: ${missingRequiredField.label}`);
       return;
     }
 
     const isAllEmpty = Object.values(this.formData).every(value => value === '');
     if (isAllEmpty) {
-      alert("You must fill at least one field before submitting.");
+      this.toastr.error('You must fill at least one field before submitting.')
+      // alert("You must fill at least one field before submitting.");
       return;
     }
+
+  
     
     this.showPopup = true; 
+    
   }
 
   editForm() {
@@ -151,7 +164,8 @@ export class MemberRegistrationComponent {
 
   submitForm() {
     this.showPopup = false; 
-    alert('Form submitted successfully!');
+    // alert('Form submitted successfully!');
+    this.toastr.success('Form submitted successfully!')
     this.formData = {};
     this.currentStep = 1;
     this.initializeFormData();
@@ -200,6 +214,16 @@ export class MemberRegistrationComponent {
       this.showSuggestions = false;
     }
   }
+ 
+  FilterCountry() {
+    console.log(this.searchCountry)
+    if (this.searchCountry) {
+      this.filterCountries = this.countries.filter((country) =>
+        country.name.toLowerCase().includes(this.searchCountry?.toLowerCase().trim()) || country.code.includes(this.searchCountry.trim()));
+    } else {
+      this.filterCountries = this.countries;
+    }
+  }
 
   validateEmail() {
     const emailValue = this.formData['email']?.trim() || '';
@@ -218,7 +242,6 @@ export class MemberRegistrationComponent {
   
     // Show suggestions only when before @ symbol
     if (emailParts.length === 1) {
-      console.log('praj bsdk')
       const selectedCountry = this.countries.find(c => c.code === this.selectedCountryCode);
       if (selectedCountry?.emailDomains) {
         this.emailSuggestions = selectedCountry.emailDomains.map((domain:any) => `${emailValue}@${domain}`);
@@ -252,4 +275,6 @@ selectEmailSuggestion(suggestion: any) {
   this.showSuggestions = false;
   this.emailError = false;
 }
+
+
 }
