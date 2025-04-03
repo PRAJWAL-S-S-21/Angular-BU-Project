@@ -5,7 +5,7 @@
   <button kendoButton   class="nav-button" *ngIf="service.isLoggedIn()" (click)="Logout()">Logout</button>
  
     <button kendoButton [routerLink]="'/register'" routerLinkActive="active" class="nav-button">Register</button>
-    <button kendoButton [routerLink]="'/configure'" routerLinkActive="active" class="nav-button" (click)="ShowMsg()">Configure</button>
+    <button kendoButton [routerLink]="'/configure'" routerLinkActive="active" class="nav-button" (click)="ShowMsg()" *ngIf="service.isLoggedIn()">Configure</button>
  
 </div>
 <router-outlet></router-outlet>
